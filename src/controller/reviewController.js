@@ -32,7 +32,7 @@ const reviewCreate = async function (req, res) {
 
         // provide valid bookId in body
         if (!isValidObjectId(bookId)) {
-            return res.status(400).send({ status: false, messaage: "BookId is required" })
+            return res.status(400).send({ status: false, messaage: "BookId not valid book Id" })
         }
 
         // check that both are same or not
@@ -56,7 +56,7 @@ const reviewCreate = async function (req, res) {
         if(!rating){
             return res.status(400).send({status:false, msg:'please provide rating'})
         }
-        if ((rating < 1 || rating > 5)) {
+        if ((rating < 1 || rating > 5)) { 
             return res.status(400).send({ status: false, message: "Rating should be in range of number 1 to 5" })
         }
         
@@ -64,7 +64,7 @@ const reviewCreate = async function (req, res) {
         let reviews = await reviewModel.create(data)
         // increase the reviews count in same book
         let updateBook = await bookModel.findOneAndUpdate({ _id: Id }, { $inc: { reviews: +1 } }, { new: true })
-        return res.status(201).send({ status: true, message: "success", data: reviews})
+        return res.status(201).send({ status: true, message: "success", bookWithReview: updateBook, reviewData:reviews})
     }
     catch (err) {
         return res.send({ error: err.message })
