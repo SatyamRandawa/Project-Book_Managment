@@ -141,7 +141,7 @@ const login = async function (req, res) {
         const token = jwt.sign({
             userId: user._id.toString()
         }, 'uranium_project-3_group_44', {
-            expiresIn: "60 min"
+            expiresIn: "120 min"
         })
         res.header("x-api-key", token);
         return res.status(200).send({ status: true, message: 'User login successfull', data: { token } });

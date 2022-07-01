@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const userModel = require('../models/userModel')
 const bookModel = require('../models/bookModel')
 const reviewModel = require('../models/reviewModel')
+const aws= require("aws-sdk")
 
 const regex = /^[a-zA-Z\s]*(?:[A-Za-z]+)*(?:[A-Za-z0-9]+)$/;
 const num = /^\+?([1-9]{3})\)?[-. ]?([0-9]{10})$/;
@@ -20,11 +21,51 @@ const isValidObjectId = function (objectId) {
 }
 //========================================createBook Api==============================================
 
+aws.config.update({
+    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
+    secretAccessKey: "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",
+    region: "ap-south-1"
+})
 
+let uploadFile= async ( file) =>{
+    return new Promise( function(resolve, reject) {
+     
+     let s3= new aws.S3({apiVersion: '2006-03-01'}); 
+     var uploadParams= {
+         ACL: "public-read",
+         Bucket: "classroom-training-bucket",  
+         Key: "abc/" + file.originalname,  
+         Body: file.buffer
+     }
+ 
+ 
+     s3.upload( uploadParams, function (err, data ){
+         if(err) {
+             return reject({"error": err})
+         }
+        // console.log(data)
+         console.log("file uploaded succesfully")
+         return resolve(data.Location)
+     })
+    })
+ }
 
 const createBook = async function (req, res) {
     try {
         const requestBody = req.body;
+        console.log(requestBody)
+        let files= req.files
+        if(files && files.length>0){
+
+            
+            var bookCover = await uploadFile(files[0])
+            //bookData['bookCover'] = bookCover
+
+            
+        }
+        else{
+            return res.status(400).send({ msg: "No file found" })
+        }
 
         //if body is empty
         if (!isValidRequestBody(requestBody)) {
@@ -33,9 +74,9 @@ const createBook = async function (req, res) {
 
         const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt } = requestBody;
         //title is empty or not match with regex
-        if (!isValid(title) || !regex.test(title)) {
-            return res.status(400).send({ status: false, message: 'Title is required' })
-        }
+        // if (!isValid(title) || !regex.test(title)) {
+        //     return res.status(400).send({ status: false, message: 'Title is required' })
+        // }
 
         const isTitleAlreadyUsed = await bookModel.findOne({ title });
         //check title is already present
@@ -98,16 +139,19 @@ const createBook = async function (req, res) {
             return res.status(400).send({ status: false, message: `Releas date must be "YYYY-MM-DD" this format` })
         }
         const allData = { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt }
+        allData["bookCover"] = bookCover
+        console.log(allData)
         // creating data
         const newBook = await bookModel.create(allData);
 
         return res.status(201).send({ status: true, message: `Books created successfully`, data: newBook });
     }
     catch (err) {
+        console.log(err)
         return res.status(500).json({ success: false, error: err.message, msg: "server" });
     }
 }
-
+ 
 
 //======================================Get Api===============================================get books
 

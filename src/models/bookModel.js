@@ -22,6 +22,10 @@ const bookSchema = new mongoose.Schema({
         unique: true,
         trim:true
     },
+    bookCover:{
+         type:String,
+         required:true
+    },
     category: {
         type: String,
         required: true,
@@ -41,7 +45,7 @@ const bookSchema = new mongoose.Schema({
         default: false
     },
     deletedAt:Date,
-    
+        
     releasedAt: {
         type: Date,//format("YYYY-MM-DD")
         required: true

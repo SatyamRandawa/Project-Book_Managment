@@ -4,11 +4,13 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const app =express()
 
+const multer= require("multer");
+app.use( multer().any())
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
-mongoose.connect("mongodb+srv://user:ISjwDttcDksEnCcv@cluster0.hja9z.mongodb.net/group44database?authSource=admin&replicaSet=atlas-3xefdb-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true" ,
+mongoose.connect("mongodb+srv://SatyamRandawa:Loveyam@cluster0.thpb5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" ,
  { useNewUrlParser: true})
  
 .then(() => {
